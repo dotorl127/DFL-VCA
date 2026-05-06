@@ -1,0 +1,294 @@
+{
+  "model": "dinov2_vits14",
+  "embedding_dim": 384,
+  "sample_fps": 2.0,
+  "input_size": 224,
+  "clusters": 64,
+  "video_stats": [
+    {
+      "path": "edited_videos\\AYJ (2).mp4",
+      "frames": 1050
+    },
+    {
+      "path": "edited_videos\\AYJ (4).mp4",
+      "frames": 875
+    },
+    {
+      "path": "edited_videos\\C (11).mp4",
+      "frames": 1144
+    },
+    {
+      "path": "edited_videos\\CD (11).mp4",
+      "frames": 746
+    },
+    {
+      "path": "edited_videos\\CD (14).mp4",
+      "frames": 1010
+    },
+    {
+      "path": "edited_videos\\CD (9).mp4",
+      "frames": 1578
+    },
+    {
+      "path": "edited_videos\\CW (9).mp4",
+      "frames": 1172
+    },
+    {
+      "path": "edited_videos\\CY (12).mp4",
+      "frames": 1000
+    },
+    {
+      "path": "edited_videos\\CY (7).mp4",
+      "frames": 928
+    },
+    {
+      "path": "edited_videos\\data_dst (10).mp4",
+      "frames": 1238
+    },
+    {
+      "path": "edited_videos\\data_dst (11).mp4",
+      "frames": 728
+    },
+    {
+      "path": "edited_videos\\data_dst (12).mp4",
+      "frames": 707
+    },
+    {
+      "path": "edited_videos\\data_dst (13).mp4",
+      "frames": 705
+    },
+    {
+      "path": "edited_videos\\data_dst (14).mp4",
+      "frames": 945
+    },
+    {
+      "path": "edited_videos\\data_dst (15).mp4",
+      "frames": 1055
+    },
+    {
+      "path": "edited_videos\\data_dst (16).mp4",
+      "frames": 1339
+    },
+    {
+      "path": "edited_videos\\data_dst (17).mp4",
+      "frames": 961
+    },
+    {
+      "path": "edited_videos\\data_dst (18).mp4",
+      "frames": 780
+    },
+    {
+      "path": "edited_videos\\data_dst (19).mp4",
+      "frames": 830
+    },
+    {
+      "path": "edited_videos\\data_dst (2).mp4",
+      "frames": 1041
+    },
+    {
+      "path": "edited_videos\\data_dst (20).mp4",
+      "frames": 1051
+    },
+    {
+      "path": "edited_videos\\data_dst (21).mp4",
+      "frames": 730
+    },
+    {
+      "path": "edited_videos\\data_dst (22).mp4",
+      "frames": 1141
+    },
+    {
+      "path": "edited_videos\\data_dst (23).mp4",
+      "frames": 875
+    },
+    {
+      "path": "edited_videos\\data_dst (24).mp4",
+      "frames": 992
+    },
+    {
+      "path": "edited_videos\\data_dst (25).mp4",
+      "frames": 929
+    },
+    {
+      "path": "edited_videos\\data_dst (26).mp4",
+      "frames": 852
+    },
+    {
+      "path": "edited_videos\\data_dst (3).mp4",
+      "frames": 712
+    },
+    {
+      "path": "edited_videos\\data_dst (4).mp4",
+      "frames": 626
+    },
+    {
+      "path": "edited_videos\\data_dst (5).mp4",
+      "frames": 721
+    },
+    {
+      "path": "edited_videos\\data_dst (6).mp4",
+      "frames": 1157
+    },
+    {
+      "path": "edited_videos\\data_dst (7).mp4",
+      "frames": 1843
+    },
+    {
+      "path": "edited_videos\\data_dst (8).mp4",
+      "frames": 981
+    },
+    {
+      "path": "edited_videos\\data_dst (9).mp4",
+      "frames": 602
+    },
+    {
+      "path": "edited_videos\\data_dst.mp4",
+      "frames": 799
+    },
+    {
+      "path": "edited_videos\\GMS (2).mp4",
+      "frames": 769
+    },
+    {
+      "path": "edited_videos\\GMS.mp4",
+      "frames": 844
+    },
+    {
+      "path": "edited_videos\\GRNY (6).mp4",
+      "frames": 923
+    },
+    {
+      "path": "edited_videos\\GRNY (9).mp4",
+      "frames": 870
+    },
+    {
+      "path": "edited_videos\\HY (10).mp4",
+      "frames": 673
+    },
+    {
+      "path": "edited_videos\\HY (4).mp4",
+      "frames": 763
+    },
+    {
+      "path": "edited_videos\\JEB (10).mp4",
+      "frames": 735
+    },
+    {
+      "path": "edited_videos\\JH (11).mp4",
+      "frames": 837
+    },
+    {
+      "path": "edited_videos\\JH (12).mp4",
+      "frames": 858
+    },
+    {
+      "path": "edited_videos\\JW (10).mp4",
+      "frames": 1311
+    },
+    {
+      "path": "edited_videos\\JW (7).mp4",
+      "frames": 783
+    },
+    {
+      "path": "edited_videos\\JYR (4).mp4",
+      "frames": 1354
+    },
+    {
+      "path": "edited_videos\\LJE (4).mp4",
+      "frames": 1210
+    },
+    {
+      "path": "edited_videos\\LJE (6).mp4",
+      "frames": 896
+    },
+    {
+      "path": "edited_videos\\LJE (9).mp4",
+      "frames": 822
+    },
+    {
+      "path": "edited_videos\\LJH (4).mp4",
+      "frames": 930
+    },
+    {
+      "path": "edited_videos\\LJH (9).mp4",
+      "frames": 889
+    },
+    {
+      "path": "edited_videos\\MGT (9).mp4",
+      "frames": 836
+    },
+    {
+      "path": "edited_videos\\NK (39).mp4",
+      "frames": 1071
+    },
+    {
+      "path": "edited_videos\\NMSY (6).mp4",
+      "frames": 1150
+    },
+    {
+      "path": "edited_videos\\SJR (10).mp4",
+      "frames": 825
+    },
+    {
+      "path": "edited_videos\\SJR (12).mp4",
+      "frames": 704
+    },
+    {
+      "path": "edited_videos\\SR (8).mp4",
+      "frames": 1114
+    },
+    {
+      "path": "edited_videos\\SR (9).mp4",
+      "frames": 939
+    },
+    {
+      "path": "edited_videos\\SSB (2).mp4",
+      "frames": 1181
+    },
+    {
+      "path": "edited_videos\\SSB (5).mp4",
+      "frames": 1197
+    },
+    {
+      "path": "edited_videos\\SY (10).mp4",
+      "frames": 997
+    },
+    {
+      "path": "edited_videos\\SY (5).mp4",
+      "frames": 1822
+    },
+    {
+      "path": "edited_videos\\SY (6).mp4",
+      "frames": 877
+    },
+    {
+      "path": "edited_videos\\SY (8).mp4",
+      "frames": 993
+    },
+    {
+      "path": "edited_videos\\TSNK (6).mp4",
+      "frames": 899
+    },
+    {
+      "path": "edited_videos\\WJI (11).mp4",
+      "frames": 1002
+    },
+    {
+      "path": "edited_videos\\WJI (12).mp4",
+      "frames": 827
+    },
+    {
+      "path": "edited_videos\\YDB (12).mp4",
+      "frames": 852
+    },
+    {
+      "path": "edited_videos\\YSB (13).mp4",
+      "frames": 731
+    },
+    {
+      "path": "edited_videos\\YTJ (8).mp4",
+      "frames": 739
+    }
+  ],
+  "total_embeddings": 68066
+}

@@ -5,7 +5,7 @@ setlocal
 set PYTHON=.venv\Scripts\python.exe
 
 REM Folder containing raw/original videos to analyze.
-set INPUT_DIR=raw_videos
+set INPUT_DIR=C:\Users\MOON\Desktop\DFL-job\CUT-SET
 
 REM Leave OUT_DIR empty to create a sibling folder named <INPUT_DIR>_xml.
 set OUT_DIR=
@@ -54,7 +54,6 @@ if "%OUT_DIR%"=="" (
       --smooth_sec %SMOOTH_SEC% ^
       --min_keep_sec %MIN_KEEP_SEC% ^
       --merge_gap_sec %MERGE_GAP_SEC% ^
-      --save_json
 ) else (
     "%PYTHON%" infer_xml_batch.py ^
       --input_dir "%INPUT_DIR%" ^
@@ -67,7 +66,6 @@ if "%OUT_DIR%"=="" (
       --smooth_sec %SMOOTH_SEC% ^
       --min_keep_sec %MIN_KEEP_SEC% ^
       --merge_gap_sec %MERGE_GAP_SEC% ^
-      --save_json
 )
 
 echo.

@@ -118,7 +118,7 @@ def extract_video_embeddings(
         total_est = min(total_est, max_frames)
 
     iterator = iter_video_frames(video_path, sample_fps=sample_fps, max_frames=max_frames)
-    pbar = tqdm(iterator, total=total_est, desc=desc or Path(video_path).name, unit='frm')
+    pbar = tqdm(iterator, total=total_est, desc=desc or Path(video_path), unit='frm')
 
     def flush():
         nonlocal batch_imgs, batch_times

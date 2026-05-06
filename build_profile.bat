@@ -11,7 +11,7 @@ REM Output style profile.
 set PROFILE_OUT=style_profile.pkl
 
 REM 1.0 = one frame per second. Use 0.5 for faster processing.
-set SAMPLE_FPS=1.0
+set SAMPLE_FPS=2.0
 set INPUT_SIZE=224
 set BATCH_SIZE=64
 set CLUSTERS=64

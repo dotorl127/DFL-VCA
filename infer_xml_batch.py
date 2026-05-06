@@ -74,7 +74,7 @@ def infer_one(video_path, model, tf, profile, args, out_xml_path: Path):
         sample_fps=sample_fps,
         batch_size=args.batch_size,
         max_frames=args.max_frames,
-        desc=f'infer:{Path(video_path).name}',
+        desc=f'infer:{Path(video_path).name[:10]}...',
     )
     if embs.shape[0] == 0:
         print(f'[WARN] no embeddings: {video_path}')
@@ -117,25 +117,6 @@ def infer_one(video_path, model, tf, profile, args, out_xml_path: Path):
         sequence_name=Path(video_path).stem + '_AI_MARKED_SPLIT',
     )
 
-    if args.save_json:
-        payload = {
-            'video': str(Path(video_path).resolve()),
-            'xml': str(out_xml_path.resolve()),
-            'profile': str(Path(args.profile).resolve()),
-            'generated_at': datetime.now().isoformat(timespec='seconds'),
-            'params': vars(args),
-            'markers': markers,
-            'score_summary': {
-                'min': float(scores_smooth.min()),
-                'max': float(scores_smooth.max()),
-                'mean': float(scores_smooth.mean()),
-                'keep_count': len(keep_segments),
-                'review_count': len(review_segments),
-            },
-            'xml_info': info,
-        }
-        out_xml_path.with_suffix('.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
-
     print(f'[DONE] {Path(video_path).name}: markers={len(markers)} KEEP={len(keep_segments)} REVIEW={len(review_segments)} xml={out_xml_path}')
     return info
 
@@ -155,7 +136,6 @@ def main():
     ap.add_argument('--merge_gap_sec', type=float, default=2.0)
     ap.add_argument('--mean_weight', type=float, default=0.10)
     ap.add_argument('--max_frames', type=int, default=0)
-    ap.add_argument('--save_json', action='store_true')
     ap.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     args = ap.parse_args()
 
@@ -200,7 +180,6 @@ def main():
         'count': len(results),
         'results': results,
     }
-    (out_dir / '_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding='utf-8')
     print(f'[DONE] wrote {len(results)} XML files to: {out_dir}')
 
 
