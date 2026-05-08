@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from model_utils import list_videos, load_dinov2_small, build_transform, extract_video_embeddings, get_video_duration
 from fcp_xml import write_fcp7_xml
+from lgbm_utils import make_lgbm_features
 
 
 def moving_average(x: np.ndarray, window: int) -> np.ndarray:
@@ -28,6 +29,39 @@ def seconds_to_timecode_like(sec: float) -> str:
     s = sec % 60
     return f'{h:02d}:{m:02d}:{s:06.3f}'
 
+
+
+
+def normalize_name(s: str) -> str:
+    import re
+    s = Path(s).stem.lower()
+    s = re.sub(r"\s+", "", s)
+    s = re.sub(r"[_\-\.\[\]\(\)]+", "", s)
+    return s
+
+
+def get_base_profile(profile):
+    """LightGBM profiles wrap the paired profile used to create labels/prototypes."""
+    if profile.get('profile_type') == 'lightgbm_keep_model':
+        return profile.get('base_profile', profile)
+    return profile
+
+
+def find_source_profile(profile, video_path):
+    """Find per-source paired profile for this raw video, if available."""
+    profile = get_base_profile(profile)
+    if profile.get('profile_type') != 'paired_raw_edited':
+        return None
+    vk = normalize_name(Path(video_path).stem)
+    best = None
+    best_len = -1
+    for sp in profile.get('source_profiles', []):
+        rk = sp.get('raw_key') or normalize_name(sp.get('raw_stem', ''))
+        if rk and (rk == vk or rk in vk or vk in rk):
+            if len(rk) > best_len:
+                best = sp
+                best_len = len(rk)
+    return best
 
 def make_segments(times, scores, mask, label, half_interval, min_len, merge_gap, duration):
     segs = []
@@ -68,7 +102,30 @@ def make_segments(times, scores, mask, label, half_interval, min_len, merge_gap,
 
 
 def infer_one(video_path, model, tf, profile, args, out_xml_path: Path):
-    sample_fps = args.sample_fps if args.sample_fps > 0 else float(profile.get('sample_fps', 1.0))
+    base_profile = get_base_profile(profile)
+    profile_type = profile.get('profile_type', '')
+    sample_fps = args.sample_fps if args.sample_fps > 0 else float(profile.get('sample_fps', base_profile.get('sample_fps', 1.0)))
+    source_profile = find_source_profile(base_profile, video_path)
+
+    if args.use_cached_paired_segments and source_profile and source_profile.get('segments'):
+        markers = [dict(m) for m in source_profile['segments']]
+        for i, m in enumerate(markers, 1):
+            m['id'] = i
+            m['label'] = m.get('label', 'KEEP')
+            m['start'] = round(float(m['start']), 3)
+            m['end'] = round(float(m['end']), 3)
+            m['score'] = round(float(m.get('score', 1.0)), 5)
+            m['start_tc'] = seconds_to_timecode_like(m['start'])
+            m['end_tc'] = seconds_to_timecode_like(m['end'])
+        info = write_fcp7_xml(
+            str(out_xml_path),
+            str(video_path),
+            markers,
+            sequence_name=Path(video_path).stem + '_PAIRED_CACHED_SPLIT',
+        )
+        print(f'[DONE] {Path(video_path).name}: cached paired markers={len(markers)} xml={out_xml_path}')
+        return info
+
     times, embs = extract_video_embeddings(
         str(video_path), model, tf, args.device,
         sample_fps=sample_fps,
@@ -80,16 +137,29 @@ def infer_one(video_path, model, tf, profile, args, out_xml_path: Path):
         print(f'[WARN] no embeddings: {video_path}')
         return None
 
-    protos = profile['prototypes'].astype(np.float32)
-    proto_score = (embs @ protos.T).max(axis=1)
-
-    mean_weight = float(args.mean_weight)
-    if mean_weight > 0 and 'global_mean' in profile:
-        gm = profile['global_mean'].astype(np.float32).reshape(1, -1)
-        mean_score = (embs @ gm.T).reshape(-1)
-        scores = (1.0 - mean_weight) * proto_score + mean_weight * mean_score
+    if profile_type == 'lightgbm_keep_model':
+        clf = profile.get('lgbm_model')
+        if clf is None:
+            raise RuntimeError('LightGBM profile does not contain lgbm_model')
+        feats = make_lgbm_features(embs, times, sample_fps, base_profile, source_profile)
+        scores = clf.predict_proba(feats)[:, 1].astype(np.float32)
+        profile_note = 'LightGBM KEEP model'
     else:
-        scores = proto_score
+        if source_profile is not None and 'prototypes' in source_profile and np.asarray(source_profile['prototypes']).size > 0:
+            protos = np.asarray(source_profile['prototypes'], dtype=np.float32)
+            profile_note = 'source-specific paired prototypes'
+        else:
+            protos = base_profile['prototypes'].astype(np.float32)
+            profile_note = 'global prototypes'
+        proto_score = (embs @ protos.T).max(axis=1)
+
+        mean_weight = float(args.mean_weight)
+        if mean_weight > 0 and 'global_mean' in base_profile:
+            gm = base_profile['global_mean'].astype(np.float32).reshape(1, -1)
+            mean_score = (embs @ gm.T).reshape(-1)
+            scores = (1.0 - mean_weight) * proto_score + mean_weight * mean_score
+        else:
+            scores = proto_score
 
     smooth_n = max(1, int(round(args.smooth_sec * sample_fps)))
     scores_smooth = moving_average(scores.astype(np.float32), smooth_n)
@@ -117,14 +187,14 @@ def infer_one(video_path, model, tf, profile, args, out_xml_path: Path):
         sequence_name=Path(video_path).stem + '_AI_MARKED_SPLIT',
     )
 
-    print(f'[DONE] {Path(video_path).name}: markers={len(markers)} KEEP={len(keep_segments)} REVIEW={len(review_segments)} xml={out_xml_path}')
+    print(f'[DONE] {Path(video_path).name}: markers={len(markers)} KEEP={len(keep_segments)} REVIEW={len(review_segments)} profile={profile_note} xml={out_xml_path}')
     return info
 
 
 def main():
     ap = argparse.ArgumentParser(description='Analyze a directory of raw videos and export one FCP7 XML per video for Premiere Pro import.')
     ap.add_argument('--input_dir', required=True, help='Folder containing raw/original videos.')
-    ap.add_argument('--profile', default='style_profile.pkl')
+    ap.add_argument('--profile', default='lgbm_profile.pkl')
     ap.add_argument('--out_dir', default='', help='Default: sibling folder named <input_dir>_xml')
     ap.add_argument('--sample_fps', type=float, default=0.0, help='0 = use sample_fps saved in profile.')
     ap.add_argument('--input_size', type=int, default=0, help='0 = use input_size saved in profile.')
@@ -135,6 +205,7 @@ def main():
     ap.add_argument('--min_keep_sec', type=float, default=3.0)
     ap.add_argument('--merge_gap_sec', type=float, default=2.0)
     ap.add_argument('--mean_weight', type=float, default=0.10)
+    ap.add_argument('--use_cached_paired_segments', action='store_true', help='If profile was built by build_paired_profile.py and this raw video exists in it, write the already matched paired segments directly.')
     ap.add_argument('--max_frames', type=int, default=0)
     ap.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     args = ap.parse_args()

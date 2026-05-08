@@ -1,5 +1,4 @@
 from pathlib import Path
-from urllib.parse import quote
 import html
 
 from model_utils import get_video_info
@@ -19,14 +18,10 @@ def fps_to_rate(fps: float):
 
 
 def path_to_file_url(path: str) -> str:
-    p = Path(path).resolve()
-    try:
-        return p.as_uri()
-    except Exception:
-        s = str(p).replace('\\', '/')
-        if len(s) >= 2 and s[1] == ':':
-            return 'file://localhost/' + quote(s, safe='/:')
-        return 'file://localhost' + quote(s, safe='/:')
+    # Premiere import was failing with file:// URL style paths on some systems.
+    # Keep the XML tag name (<pathurl>) for FCP7/Premiere compatibility, but write
+    # the plain absolute media path as requested.
+    return str(Path(path).resolve())
 
 
 def xml_escape(s) -> str:
